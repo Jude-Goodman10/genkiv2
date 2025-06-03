@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>GenkiMart Chatbot</title>
+  <style>
+    /* Reset and base styles */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html,
+    body {
+      height: 100%;
+      font-family: Arial, sans-serif;
+      background-color: #FFF8E1; /* Cream background */
+      color: #333;
+    }
+
+    #app {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* HEADER */
+    header {
+      flex: 0 0 60px;
+      background-color: #FFF8E1;
+      border-bottom: 3px solid #D32F2F; /* Red accent border */
+      display: flex;
+      align-items: center;
+      padding: 0 16px;
+    }
+
+    #logo-container {
+      flex: 0 0 auto;
+      height: 40px;
+    }
+
+    #logo-container img {
+      height: 100%;
+      width: auto;
+      object-fit: contain;
+    }
+
+    #logo-input-container {
+      flex: 1 1 auto;
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+    }
+
+    #logo-input-container input {
+      width: 200px;
+      padding: 6px 8px;
+      border: 1px solid #D32F2F;
+      border-radius: 4px;
+      margin-right: 8px;
+      font-size: 14px;
+    }
+
+    #logo-input-container button {
+      padding: 6px 12px;
+      background-color: #D32F2F;
+      color: #FFF;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    #logo-input-container button:hover {
+      background-color: #B71C1C;
+    }
+
+    /* CHAT CONTAINER */
+    #chatContainer {
+      flex: 1 1 auto;
+      overflow-y: auto;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .message {
+      max-width: 75%;
+      margin-bottom: 12px;
+      padding: 10px 14px;
+      border-radius: 12px;
+      line-height: 1.4;
+      word-wrap: break-word;
+      white-space: pre-wrap; /* To respect newlines */
+    }
+
+    .message.user {
+      align-self: flex-end;
+      background-color: #FFCDD2; /* Light red for user */
+      color: #000;
+      border-bottom-right-radius: 0;
+    }
+
+    .message.bot {
+      align-self: flex-start;
+      background-color: #FFF;
+      color: #000;
+      border: 2px solid #D32F2F; /* Red border */
+      border-bottom-left-radius: 0;
+    }
+
+    /* INPUT CONTAINER */
+    #inputContainer {
+      flex: 0 0 auto;
+      padding: 12px 16px;
+      background-color: #FFF8E1;
+      border-top: 3px solid #D32F2F;
+      display: flex;
+      align-items: center;
+    }
+
+    #inputContainer input[type="text"] {
+      flex: 1 1 auto;
+      padding: 8px 12px;
+      font-size: 16px;
+      border: 1px solid #D32F2F;
+      border-radius: 20px;
+      margin-right: 8px;
+    }
+
+    #inputContainer button {
+      flex: 0 0 auto;
+      padding: 8px 16px;
+      margin-left: 4px;
+      background-color: #D32F2F;
+      color: #FFF;
+      border: none;
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 16px;
+      transition: background-color 0.2s ease;
+    }
+
+    #inputContainer button:hover {
+      background-color: #B71C1C;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 600px) {
+      #logo-input-container input {
+        width: 120px;
+        font-size: 12px;
+      }
+
+      #inputContainer input[type="text"] {
+        font-size: 14px;
+      }
+
+      #inputContainer button {
+        padding: 6px 12px;
+        font-size: 14px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div id="app">
+    <header>
+      <!-- Logo container -->
+      <div id="logo-container">
+        <!-- Default placeholder; user can override via dynamic load -->
+        <img id="logo" src="https://via.placeholder.com/150x40?text=GenkiMart" alt="GenkiMart Logo" />
+      </div>
+
+      <!-- Input to change logo URL dynamically -->
+      <div id="logo-input-container">
+        <input id="logoUrlInput" type="text" placeholder="Logo Image URL" />
+        <button id="loadLogoBtn">Load Logo</button>
+      </div>
+    </header>
+
+    <!-- Chat messages area -->
+    <div id="chatContainer"></div>
+
+    <!-- User input and controls -->
+    <div id="inputContainer">
+      <input id="userInput" type="text" placeholder="Type your message..." autocomplete="off" />
+      <button id="sendBtn">Send</button>
+      <button id="resetBtn">New Chat</button>
+    </div>
+  </div>
+
+  <script>
+    /*********************************************
+     *  Configuration: Replace with your webhook  *
+     *********************************************/
+    const WEBHOOK_URL = "https://your-n8n-webhook-url.example.com/your-path";
+
+    /*********************************************
+     *  Utility: Generate or retrieve sessionId  *
+     *********************************************/
+    function getChatId() {
+      let id = localStorage.getItem("chatId");
+      if (!id) {
+        id = crypto.randomUUID();
+        localStorage.setItem("chatId", id);
+      }
+      return id;
+    }
+
+    /*********************************************
+     *  UI References                            *
+     *********************************************/
+    const chatContainer = document.getElementById("chatContainer");
+    const userInput = document.getElementById("userInput");
+    const sendBtn = document.getElementById("sendBtn");
+    const resetBtn = document.getElementById("resetBtn");
+
+    const logoImg = document.getElementById("logo");
+    const logoUrlInput = document.getElementById("logoUrlInput");
+    const loadLogoBtn = document.getElementById("loadLogoBtn");
+
+    /*********************************************
+     *  Append message bubbles to chat container *
+     *********************************************/
+    function appendMessage(text, who) {
+      const bubble = document.createElement("div");
+      bubble.classList.add("message", who);
+      bubble.textContent = text;
+      chatContainer.appendChild(bubble);
+      chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
+
+    /*********************************************
+     *  Clear chat UI and session memory on reset*
+     *********************************************/
+    function resetChat() {
+      localStorage.removeItem("chatId");
+      chatContainer.innerHTML = "";
+      userInput.value = "";
+      userInput.focus();
+    }
+
+    /*********************************************
+     *  Send user message to webhook, handle bot *
+     *********************************************/
+    async function sendMessageToBot(messageText) {
+      const sessionId = getChatId();
+
+      try {
+        // Display user message
+        appendMessage(messageText, "user");
+
+        // Call n8n webhook
+        const response = await fetch(WEBHOOK_URL, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            sessionId: sessionId,
+            message: messageText
+          })
+        });
+
+        // If CORS or network error:
+        if (!response.ok) {
+          throw new Error(`Network response was not OK (${response.status})`);
+        }
+
+        const data = await response.json();
+        if (data.reply) {
+          appendMessage(data.reply, "bot");
+        } else {
+          appendMessage("⚠️ Unexpected response from server.", "bot");
+        }
+      } catch (error) {
+        console.error("Error sending message:", error);
+        appendMessage("⚠️ Failed to contact server. Check console for details.", "bot");
+      }
+    }
+
+    /*********************************************
+     *  Event listeners: Send, Reset, and Logo   *
+     *********************************************/
+    sendBtn.addEventListener("click", () => {
+      const text = userInput.value.trim();
+      if (!text) return;
+      userInput.value = "";
+      sendMessageToBot(text);
+    });
+
+    userInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        sendBtn.click();
+      }
+    });
+
+    resetBtn.addEventListener("click", resetChat);
+
+    // Dynamically load new logo from URL
+    loadLogoBtn.addEventListener("click", () => {
+      const url = logoUrlInput.value.trim();
+      if (!url) return;
+      logoImg.src = url;
+      logoUrlInput.value = "";
+    });
+
+    /*********************************************
+     *  Initial focus on input                   *
+     *********************************************/
+    window.addEventListener("load", () => {
+      userInput.focus();
+      // If there’s already a stored chatId, this will preserve scroll.
+      getChatId();
+    });
+  </script>
+</body>
+</html>

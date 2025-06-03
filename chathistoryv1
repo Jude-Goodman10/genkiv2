@@ -198,7 +198,7 @@
     /*********************************************
      *  Configuration: Replace with your webhook  *
      *********************************************/
-    const WEBHOOK_URL = "https://your-n8n-webhook-url.example.com/your-path";
+    const WEBHOOK_URL = "https://oli-emergeai.app.n8n.cloud/webhook-test/ecb4d22e-23fc-4679-83aa-507ad8ab1483";
 
     /*********************************************
      *  Utility: Generate or retrieve sessionId  *

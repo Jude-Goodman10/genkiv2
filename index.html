@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>GenkiMart Chatbot</title>
+  <title>Genki Mart Shopping Assistant</title>
   <style>
     /* Reset and base styles */
     * {
@@ -29,53 +29,68 @@
 
     /* HEADER */
     header {
-      flex: 0 0 60px;
+      flex: 0 0 70px;
       background-color: #FFF8E1;
       border-bottom: 3px solid #D32F2F; /* Red accent border */
       display: flex;
       align-items: center;
-      padding: 0 16px;
+      justify-content: space-between;
+      padding: 0 24px;
     }
 
-    #logo-container {
-      flex: 0 0 auto;
-      height: 40px;
-    }
-
-    #logo-container img {
-      height: 100%;
-      width: auto;
-      object-fit: contain;
-    }
-
-    #logo-input-container {
-      flex: 1 1 auto;
+    #brand {
       display: flex;
-      justify-content: flex-end;
       align-items: center;
     }
 
-    #logo-input-container input {
-      width: 200px;
-      padding: 6px 8px;
-      border: 1px solid #D32F2F;
-      border-radius: 4px;
-      margin-right: 8px;
-      font-size: 14px;
+    #brand img {
+      height: 50px;
+      width: auto;
+      object-fit: contain;
+      margin-right: 16px;
     }
 
-    #logo-input-container button {
-      padding: 6px 12px;
+    #brand h1 {
+      font-size: 24px;
+      color: #D32F2F;
+    }
+
+    #newChatBtn {
+      width: 40px;
+      height: 40px;
+      border: none;
+      border-radius: 50%;
       background-color: #D32F2F;
       color: #FFF;
-      border: none;
-      border-radius: 4px;
+      font-size: 20px;
       cursor: pointer;
-      font-size: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
-    #logo-input-container button:hover {
+    #newChatBtn:hover {
       background-color: #B71C1C;
+    }
+
+    /* MAIN AREA */
+    main {
+      flex: 1 1 auto;
+      display: flex;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    #chatBox {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      max-width: 600px;
+      background-color: transparent;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      border-radius: 8px;
+      overflow: hidden;
+      background-color: #FFF;
     }
 
     /* CHAT CONTAINER */
@@ -85,10 +100,11 @@
       padding: 16px;
       display: flex;
       flex-direction: column;
+      background-color: #FFF;
     }
 
     .message {
-      max-width: 75%;
+      max-width: 80%;
       margin-bottom: 12px;
       padding: 10px 14px;
       border-radius: 12px;
@@ -134,7 +150,6 @@
     #inputContainer button {
       flex: 0 0 auto;
       padding: 8px 16px;
-      margin-left: 4px;
       background-color: #D32F2F;
       color: #FFF;
       border: none;
@@ -142,6 +157,7 @@
       cursor: pointer;
       font-size: 16px;
       transition: background-color 0.2s ease;
+      margin-left: 4px;
     }
 
     #inputContainer button:hover {
@@ -150,9 +166,8 @@
 
     /* Responsive adjustments */
     @media (max-width: 600px) {
-      #logo-input-container input {
-        width: 120px;
-        font-size: 12px;
+      #brand h1 {
+        font-size: 18px;
       }
 
       #inputContainer input[type="text"] {
@@ -163,6 +178,13 @@
         padding: 6px 12px;
         font-size: 14px;
       }
+
+      #chatBox {
+        max-width: 100%;
+        margin: 0;
+        border-radius: 0;
+        box-shadow: none;
+      }
     }
   </style>
 </head>
@@ -170,28 +192,24 @@
 <body>
   <div id="app">
     <header>
-      <!-- Logo container -->
-      <div id="logo-container">
-        <!-- Default placeholder; user can override via dynamic load -->
-        <img id="logo" src="https://via.placeholder.com/150x40?text=GenkiMart" alt="GenkiMart Logo" />
+      <!-- Brand: logo + title -->
+      <div id="brand">
+        <img id="logo" src="https://genkimart.com.au/wp-content/uploads/2021/11/Logo-Genki-Mart-e1670940660411.png" alt="Genki Mart Logo" />
+        <h1>Genki Mart Shopping Assistant</h1>
       </div>
-
-      <!-- Input to change logo URL dynamically -->
-      <div id="logo-input-container">
-        <input id="logoUrlInput" type="text" placeholder="Logo Image URL" />
-        <button id="loadLogoBtn">Load Logo</button>
-      </div>
+      <!-- New Chat button (circle) -->
+      <button id="newChatBtn" title="New Chat">⟲</button>
     </header>
 
-    <!-- Chat messages area -->
-    <div id="chatContainer"></div>
-
-    <!-- User input and controls -->
-    <div id="inputContainer">
-      <input id="userInput" type="text" placeholder="Type your message..." autocomplete="off" />
-      <button id="sendBtn">Send</button>
-      <button id="resetBtn">New Chat</button>
-    </div>
+    <main>
+      <div id="chatBox">
+        <div id="chatContainer"></div>
+        <div id="inputContainer">
+          <input id="userInput" type="text" placeholder="Type your message..." autocomplete="off" />
+          <button id="sendBtn">Send</button>
+        </div>
+      </div>
+    </main>
   </div>
 
   <script>
@@ -218,11 +236,7 @@
     const chatContainer = document.getElementById("chatContainer");
     const userInput = document.getElementById("userInput");
     const sendBtn = document.getElementById("sendBtn");
-    const resetBtn = document.getElementById("resetBtn");
-
-    const logoImg = document.getElementById("logo");
-    const logoUrlInput = document.getElementById("logoUrlInput");
-    const loadLogoBtn = document.getElementById("loadLogoBtn");
+    const newChatBtn = document.getElementById("newChatBtn");
 
     /*********************************************
      *  Append message bubbles to chat container *
@@ -285,7 +299,7 @@
     }
 
     /*********************************************
-     *  Event listeners: Send, Reset, and Logo   *
+     *  Event listeners: Send, Reset             *
      *********************************************/
     sendBtn.addEventListener("click", () => {
       const text = userInput.value.trim();
@@ -301,15 +315,7 @@
       }
     });
 
-    resetBtn.addEventListener("click", resetChat);
-
-    // Dynamically load new logo from URL
-    loadLogoBtn.addEventListener("click", () => {
-      const url = logoUrlInput.value.trim();
-      if (!url) return;
-      logoImg.src = url;
-      logoUrlInput.value = "";
-    });
+    newChatBtn.addEventListener("click", resetChat);
 
     /*********************************************
      *  Initial focus on input                   *

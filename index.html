@@ -29,41 +29,43 @@
 
     /* HEADER */
     header {
-      flex: 0 0 140px; /* Double previous height */
+      flex: 0 0 140px; /* Height of header */
       background-color: #FFF8E1;
       border-bottom: 3px solid #D32F2F; /* Red accent border */
       display: flex;
       align-items: center;
-      justify-content: space-between;
       padding: 0 32px;
     }
 
-    #brand {
-      display: flex;
-      align-items: center;
+    /* Logo container */
+    #logo-container {
+      flex: 0 0 auto;
     }
 
-    #brand img {
-      height: 90px; /* Triple icon size */
+    #logo-container img {
+      height: 100px; /* Slightly larger */
       width: auto;
       object-fit: contain;
-      margin-right: 24px;
     }
 
-    #brand h1 {
+    /* Title centered */
+    #title {
+      flex: 1 1 auto;
       font-size: 48px; /* Double text size */
       color: #D32F2F;
       text-align: center;
     }
 
+    /* New Chat button on right */
     #newChatBtn {
-      width: 120px; /* Triple button size */
-      height: 120px;
+      flex: 0 0 auto;
+      width: 60px; /* Smaller button size */
+      height: 60px;
       border: none;
       border-radius: 50%;
       background-color: #D32F2F;
       color: #FFF;
-      font-size: 36px; /* Triple icon text size */
+      font-size: 24px;
       cursor: pointer;
       display: flex;
       align-items: center;
@@ -190,19 +192,18 @@
         padding: 0 16px;
       }
 
-      #brand img {
-        height: 60px;
-        margin-right: 12px;
+      #logo-container img {
+        height: 80px;
       }
 
-      #brand h1 {
+      #title {
         font-size: 32px;
       }
 
       #newChatBtn {
-        width: 80px;
-        height: 80px;
-        font-size: 24px;
+        width: 50px;
+        height: 50px;
+        font-size: 20px;
       }
 
       #inputContainer input[type="text"] {
@@ -220,12 +221,13 @@
 <body>
   <div id="app">
     <header>
-      <!-- Brand: logo + title -->
-      <div id="brand">
+      <!-- Logo container on left -->
+      <div id="logo-container">
         <img id="logo" src="https://genkimart.com.au/wp-content/uploads/2021/11/Logo-Genki-Mart-e1670940660411.png" alt="Genki Mart Logo" />
-        <h1>Genki Mart Shopping Assistant</h1>
       </div>
-      <!-- New Chat button (circle) -->
+      <!-- Centered title -->
+      <h1 id="title">Genki Mart Shopping Assistant</h1>
+      <!-- New Chat button on right -->
       <button id="newChatBtn" title="New Chat">⟲</button>
     </header>
 

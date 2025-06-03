@@ -18,24 +18,24 @@
       font-family: Arial, sans-serif;
       background-color: #FFF8E1; /* Cream background */
       color: #333;
+      overflow: hidden;
     }
 
     #app {
       display: flex;
       flex-direction: column;
       height: 100vh;
-      overflow: hidden;
     }
 
     /* HEADER */
     header {
-      flex: 0 0 70px;
+      flex: 0 0 140px; /* Double previous height */
       background-color: #FFF8E1;
       border-bottom: 3px solid #D32F2F; /* Red accent border */
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 0 24px;
+      padding: 0 32px;
     }
 
     #brand {
@@ -44,25 +44,26 @@
     }
 
     #brand img {
-      height: 50px;
+      height: 90px; /* Triple icon size */
       width: auto;
       object-fit: contain;
-      margin-right: 16px;
+      margin-right: 24px;
     }
 
     #brand h1 {
-      font-size: 24px;
+      font-size: 48px; /* Double text size */
       color: #D32F2F;
+      text-align: center;
     }
 
     #newChatBtn {
-      width: 40px;
-      height: 40px;
+      width: 120px; /* Triple button size */
+      height: 120px;
       border: none;
       border-radius: 50%;
       background-color: #D32F2F;
       color: #FFF;
-      font-size: 20px;
+      font-size: 36px; /* Triple icon text size */
       cursor: pointer;
       display: flex;
       align-items: center;
@@ -78,22 +79,31 @@
       flex: 1 1 auto;
       display: flex;
       justify-content: center;
+      align-items: center; /* vertically center chatBox if space */
       padding: 16px;
+      overflow: hidden;
     }
 
     #chatBox {
       display: flex;
       flex-direction: column;
       width: 100%;
-      max-width: 600px;
-      background-color: transparent;
+      max-width: 800px; /* Wider max width */
+      background-color: #FFF;
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
       border-radius: 8px;
       overflow: hidden;
-      background-color: #FFF;
+      height: 100%;
     }
 
     /* CHAT CONTAINER */
+    #chatContainerWrapper {
+      flex: 1 1 auto;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
     #chatContainer {
       flex: 1 1 auto;
       overflow-y: auto;
@@ -131,31 +141,34 @@
     /* INPUT CONTAINER */
     #inputContainer {
       flex: 0 0 auto;
-      padding: 12px 16px;
       background-color: #FFF8E1;
       border-top: 3px solid #D32F2F;
       display: flex;
       align-items: center;
+      padding: 12px 16px;
+      position: sticky;
+      bottom: 0;
+      z-index: 10;
     }
 
     #inputContainer input[type="text"] {
       flex: 1 1 auto;
-      padding: 8px 12px;
-      font-size: 16px;
+      padding: 12px 16px;
+      font-size: 18px;
       border: 1px solid #D32F2F;
-      border-radius: 20px;
+      border-radius: 24px;
       margin-right: 8px;
     }
 
     #inputContainer button {
       flex: 0 0 auto;
-      padding: 8px 16px;
+      padding: 10px 20px;
       background-color: #D32F2F;
       color: #FFF;
       border: none;
-      border-radius: 20px;
+      border-radius: 24px;
       cursor: pointer;
-      font-size: 16px;
+      font-size: 18px;
       transition: background-color 0.2s ease;
       margin-left: 4px;
     }
@@ -165,25 +178,40 @@
     }
 
     /* Responsive adjustments */
+    @media (max-width: 800px) {
+      #chatBox {
+        max-width: 90%;
+      }
+    }
+
     @media (max-width: 600px) {
+      header {
+        flex: 0 0 100px;
+        padding: 0 16px;
+      }
+
+      #brand img {
+        height: 60px;
+        margin-right: 12px;
+      }
+
       #brand h1 {
-        font-size: 18px;
+        font-size: 32px;
+      }
+
+      #newChatBtn {
+        width: 80px;
+        height: 80px;
+        font-size: 24px;
       }
 
       #inputContainer input[type="text"] {
-        font-size: 14px;
+        font-size: 16px;
       }
 
       #inputContainer button {
-        padding: 6px 12px;
-        font-size: 14px;
-      }
-
-      #chatBox {
-        max-width: 100%;
-        margin: 0;
-        border-radius: 0;
-        box-shadow: none;
+        padding: 8px 16px;
+        font-size: 16px;
       }
     }
   </style>
@@ -203,7 +231,9 @@
 
     <main>
       <div id="chatBox">
-        <div id="chatContainer"></div>
+        <div id="chatContainerWrapper">
+          <div id="chatContainer"></div>
+        </div>
         <div id="inputContainer">
           <input id="userInput" type="text" placeholder="Type your message..." autocomplete="off" />
           <button id="sendBtn">Send</button>
@@ -322,7 +352,6 @@
      *********************************************/
     window.addEventListener("load", () => {
       userInput.focus();
-      // If there’s already a stored chatId, this will preserve scroll.
       getChatId();
     });
   </script>

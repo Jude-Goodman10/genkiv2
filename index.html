@@ -4,6 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Genki Mart Shopping Assistant</title>
+  <!-- ✅ DOMPurify for safe HTML rendering -->
+  <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.3/dist/purify.min.js"></script>
   <style>
     /* Reset and base styles */
     * {
@@ -276,7 +278,13 @@
     function appendMessage(text, who) {
       const bubble = document.createElement("div");
       bubble.classList.add("message", who);
-      bubble.textContent = text;
+      if (who === "bot") {
+        // ✅ Render HTML safely for bot messages
+        bubble.innerHTML = DOMPurify.sanitize(text);
+      } else {
+        // User text remains plain for safety
+        bubble.textContent = text;
+      }
       chatContainer.appendChild(bubble);
       chatContainer.scrollTop = chatContainer.scrollHeight;
     }

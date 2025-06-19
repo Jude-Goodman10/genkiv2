@@ -278,13 +278,19 @@
     function appendMessage(text, who) {
       const bubble = document.createElement("div");
       bubble.classList.add("message", who);
+
+      // 👉 Render user text as plain text (safe) but allow limited HTML for bot replies
       if (who === "bot") {
-        // ✅ Render HTML safely for bot messages
-        bubble.innerHTML = DOMPurify.sanitize(text);
+        // Fallback if DOMPurify failed to load
+        const safeHtml = (window.DOMPurify && DOMPurify.sanitize) ? DOMPurify.sanitize(text) : text;
+        bubble.innerHTML = safeHtml;
       } else {
-        // User text remains plain for safety
         bubble.textContent = text;
       }
+
+      chatContainer.appendChild(bubble);
+      chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
       chatContainer.appendChild(bubble);
       chatContainer.scrollTop = chatContainer.scrollHeight;
     }

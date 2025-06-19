@@ -22,7 +22,7 @@
 
     /* MAIN AREA */
     main { flex: 1 1 auto; display: flex; justify-content: center; align-items: center; padding: 16px; overflow: hidden; }
-    #chatBox { display: flex; flex-direction: column; width: 100%; max-width: 800px; background-color: #FFF; box-shadow: 0 2px 8px rgba(0,0,0,0.1); border-radius: 8px; overflow: hidden; height: 100%; }
+    #chatBox { position: relative; display: flex; flex-direction: column; width: 100%; max-width: 800px; background-color: #FFF; box-shadow: 0 2px 8px rgba(0,0,0,0.1); border-radius: 8px; overflow: hidden; height: 100%; }
     #chatContainerWrapper { flex: 1 1 auto; overflow: hidden; display: flex; flex-direction: column; }
     #chatContainer { flex: 1 1 auto; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; background-color: #FFF; }
     .message { max-width: 80%; margin-bottom: 12px; padding: 10px 14px; border-radius: 12px; line-height: 1.4; word-wrap: break-word; white-space: pre-wrap; }
@@ -38,8 +38,8 @@
     @keyframes blink { 0% { opacity: 0; } 20% { opacity: 1; } 40% { opacity: 0; } 100% { opacity: 0; } }
 
     /* SUGGESTED STARTERS */
-    #suggestions { flex: 0 0 auto; background-color: #FFF8E1; padding: 12px 16px; display: flex; gap: 8px; justify-content: center; border-top: 3px solid #D32F2F; }
-    .suggestion-btn { background-color: #D32F2F; color: #FFF; border: none; padding: 10px 14px; border-radius: 24px; cursor: pointer; font-size: 16px; white-space: nowrap; transition: background-color 0.2s ease; }
+    #suggestions { position: absolute; bottom: 96px; right: 16px; display: flex; flex-direction: column; gap: 8px; align-items: flex-end; z-index: 20; }
+    .suggestion-btn { background-color: #D32F2F; color: #FFF; border: none; padding: 8px 12px; border-radius: 24px; cursor: pointer; font-size: 14px; white-space: nowrap; transition: background-color 0.2s ease; width: max-content; }
     .suggestion-btn:hover { background-color: #B71C1C; }
 
     /* INPUT CONTAINER */
@@ -57,7 +57,7 @@
       #newChatBtn { width: 50px; height: 50px; font-size: 20px; }
       #inputContainer input[type="text"] { font-size: 16px; }
       #inputContainer button { padding: 8px 16px; font-size: 16px; }
-      .suggestion-btn { font-size: 14px; padding: 8px 12px; }
+      #suggestions { bottom: 88px; right: 8px; }
     }
   </style>
 </head>
@@ -94,61 +94,4 @@
       const bubble = document.createElement("div");
       bubble.classList.add("message", who);
       if (who === "bot") {
-        const safeHtml = (window.DOMPurify && DOMPurify.sanitize) ? DOMPurify.sanitize(text) : text;
-        bubble.innerHTML = safeHtml;
-      } else if (who === "typing") {
-        bubble.innerHTML = '<span class="dot"></span><span class="dot"></span><span class="dot"></span>'; // animated dots
-      } else {
-        bubble.textContent = text;
-      }
-      chatContainer.appendChild(bubble);
-      chatContainer.scrollTop = chatContainer.scrollHeight;
-      return bubble; // return reference for later removal
-    }
-
-    function showTyping() { if (!typingBubble) { typingBubble = appendMessage("", "typing"); } }
-    function hideTyping() { if (typingBubble) { typingBubble.remove(); typingBubble = null; } }
-
-    function hideSuggestions() { const s = document.getElementById("suggestions"); if (s) s.style.display = "none"; }
-    function showSuggestions() { const s = document.getElementById("suggestions"); if (s) s.style.display = "flex"; }
-
-    function resetChat() { localStorage.removeItem("chatId"); chatContainer.innerHTML = ""; userInput.value = ""; showSuggestions(); userInput.focus(); }
-
-    async function sendMessageToBot(messageText) {
-      hideSuggestions();
-      const sessionId = getChatId();
-      try {
-        appendMessage(messageText, "user");
-        showTyping(); // show indicator while waiting
-        const response = await fetch(WEBHOOK_URL, {
-          method: "POST", headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ sessionId: sessionId, message: messageText })
-        });
-        if (!response.ok) throw new Error(`Network response was not OK (${response.status})`);
-        const data = await response.json();
-        hideTyping();
-        if (data.reply) { appendMessage(data.reply, "bot"); } else { appendMessage("⚠️ Unexpected response from server.", "bot"); }
-      } catch (error) {
-        console.error("Error sending message:", error);
-        hideTyping();
-        appendMessage("⚠️ Failed to contact server. Check console for details.", "bot");
-      }
-    }
-
-    // Event listeners
-    sendBtn.addEventListener("click", () => { const text = userInput.value.trim(); if (!text) return; userInput.value = ""; sendMessageToBot(text); });
-    userInput.addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); sendBtn.click(); } });
-    newChatBtn.addEventListener("click", resetChat);
-
-    // Suggested starters click handling
-    document.querySelectorAll(".suggestion-btn").forEach(btn => {
-      btn.addEventListener("click", () => {
-        const text = btn.dataset.suggestion;
-        sendMessageToBot(text);
-      });
-    });
-
-    window.addEventListener("load", () => { userInput.focus(); getChatId(); showSuggestions(); });
-  </script>
-</body>
-</html>
+        const safeHtml = (

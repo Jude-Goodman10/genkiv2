@@ -25,8 +25,12 @@
     #chatBox{position:relative;display:flex;flex-direction:column;width:100%;max-width:800px;height:100%;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,.1);border-radius:8px;overflow:hidden}
     #chatContainer{flex:1;overflow-y:auto;display:flex;flex-direction:column;padding:16px}
 
-    /* LANGUAGE NOTICE – now 25 % down (=75 % toward top) */
-    #langNotice{margin-top:25%;margin-bottom:0;text-align:center;font-size:28px;line-height:1.3;transition:opacity .5s ease-in-out;width:80%;align-self:center}
+    /* LANGUAGE NOTICE – now ~15 vh down (~75 % toward the top) */
+    #langNotice{
+      margin-top:15vh;                       /* ← updated */
+      text-align:center;font-size:28px;line-height:1.3;
+      transition:opacity .5s ease-in-out;width:80%;align-self:center
+    }
 
     /* MESSAGE BUBBLES */
     .message{max-width:80%;margin-bottom:12px;padding:10px 14px;border-radius:12px;white-space:pre-wrap;word-wrap:break-word;line-height:1.4}
@@ -90,97 +94,66 @@
     </main>
   </div>
 
+  <!-- ---------- JS (unchanged from your last version) ---------- -->
   <script>
-  /* ---------- CONFIG ---------- */
-  const WEBHOOK_URL="https://n8n.emergeai.com.au/webhook/ecb4d22e-23fc-4679-83aa-507ad8ab1483";
+    const WEBHOOK_URL="https://n8n.emergeai.com.au/webhook/ecb4d22e-23fc-4679-83aa-507ad8ab1483";
+    const chatC=document.getElementById("chatContainer");
+    const userInput=document.getElementById("userInput");
+    const sendBtn=document.getElementById("sendBtn");
+    const newBtn=document.getElementById("newChatBtn");
+    const suggWrap=document.getElementById("suggestions");
+    const titleEl=document.getElementById("title");
+    const noticeEl=document.getElementById("langNotice");
 
-  /* ---------- ELEMENTS ---------- */
-  const chatC=document.getElementById("chatContainer");
-  const userInput=document.getElementById("userInput");
-  const sendBtn=document.getElementById("sendBtn");
-  const newBtn=document.getElementById("newChatBtn");
-  const suggWrap=document.getElementById("suggestions");
-  const titleEl=document.getElementById("title");
-  const noticeEl=document.getElementById("langNotice");
+    function getChatId(){let id=localStorage.getItem("chatId");if(!id){id=crypto.randomUUID();localStorage.setItem("chatId",id);}return id;}
 
-  /* ---------- CHAT ID ---------- */
-  function getChatId(){
-    let id=localStorage.getItem("chatId");
-    if(!id){id=crypto.randomUUID();localStorage.setItem("chatId",id);}
-    return id;
-  }
+    let typing=null;
+    function appendBubble(text,who="bot"){
+      const d=document.createElement("div");
+      d.className=`message ${who}`;
+      if(who==="bot")d.innerHTML=DOMPurify.sanitize(text);
+      else if(who==="typing")d.innerHTML="<span class='dot'></span><span class='dot'></span><span class='dot'></span>";
+      else d.textContent=text;
+      chatC.appendChild(d);chatC.scrollTop=chatC.scrollHeight;return d;
+    }
+    function showTyping(){if(!typing)typing=appendBubble("","typing");}
+    function hideTyping(){if(typing){typing.remove();typing=null;}}
 
-  /* ---------- BUBBLES ---------- */
-  let typing=null;
-  function appendBubble(text,who="bot"){
-    const d=document.createElement("div");
-    d.className=`message ${who}`;
-    if(who==="bot") d.innerHTML=DOMPurify.sanitize(text);
-    else if(who==="typing") d.innerHTML="<span class='dot'></span><span class='dot'></span><span class='dot'></span>";
-    else d.textContent=text;
-    chatC.appendChild(d);chatC.scrollTop=chatC.scrollHeight;return d;
-  }
-  function showTyping(){if(!typing) typing=appendBubble("", "typing");}
-  function hideTyping(){if(typing){typing.remove();typing=null;}}
+    function resetChat(){localStorage.removeItem("chatId");chatC.innerHTML="";chatC.appendChild(noticeEl);userInput.value="";suggWrap.style.display="flex";userInput.focus();}
 
-  function resetChat(){
-    localStorage.removeItem("chatId");
-    chatC.innerHTML="";
-    chatC.appendChild(noticeEl);
-    userInput.value="";
-    suggWrap.style.display="flex";
-    userInput.focus();
-  }
+    async function sendMsg(t){
+      if(!t.trim())return;suggWrap.style.display="none";appendBubble(t,"user");showTyping();
+      try{const r=await fetch(WEBHOOK_URL,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({sessionId:getChatId(),message:t})});const j=await r.json();hideTyping();appendBubble(j.reply||"⚠️ Unexpected response","bot");}
+      catch(e){console.error(e);hideTyping();appendBubble("⚠️ Failed to contact server.","bot");}
+    }
 
-  async function sendMsg(t){
-    if(!t.trim())return;
-    suggWrap.style.display="none";
-    appendBubble(t,"user");showTyping();
-    try{
-      const r=await fetch(WEBHOOK_URL,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({sessionId:getChatId(),message:t})});
-      const j=await r.json();hideTyping();appendBubble(j.reply||"⚠️ Unexpected response","bot");
-    }catch(e){console.error(e);hideTyping();appendBubble("⚠️ Failed to contact server.","bot");}
-  }
+    function addEvents(){
+      sendBtn.onclick=()=>{const t=userInput.value;userInput.value="";sendMsg(t);}
+      userInput.onkeydown=e=>{if(e.key==="Enter"){e.preventDefault();sendBtn.click();}}
+      newBtn.onclick=resetChat;
+      suggWrap.querySelectorAll(".suggestion-btn").forEach(b=>b.onclick=()=>sendMsg(b.dataset.suggestion));
+    }
 
-  /* ---------- EVENTS ---------- */
-  function addEvents(){
-    sendBtn.onclick=()=>{const t=userInput.value;userInput.value="";sendMsg(t);}
-    userInput.onkeydown=e=>{if(e.key==="Enter"){e.preventDefault();sendBtn.click();}}
-    newBtn.onclick=resetChat;
-    suggWrap.querySelectorAll(".suggestion-btn").forEach(b=>b.onclick=()=>sendMsg(b.dataset.suggestion));
-  }
+    const texts={
+      title:["Genki Mart Shopping Assistant","Genki Mart ショッピングアシスタント"],
+      notice:["Feel free to change the language option between English and Japanese on your keyboard, we will reply to you in whatever language you address us in!","英語と日本語のキーボード設定を自由に切り替えてください。どの言語で話しかけていただいても、その言語でお返事します！"],
+      sugg:[["Send me a recipe for Ramen Noodles","What dessert options do you have?"],["ラーメンのレシピを教えてください","デザートのオプションは何がありますか？"]],
+      ph:["Type your message...","メッセージを入力してください..."],
+      send:["Send","送信"]
+    };
+    let lang=0;
+    function fade(out){[titleEl,noticeEl,suggWrap,sendBtn,userInput].forEach(e=>e.style.opacity=out?0:1);}
+    function rotateLang(){
+      fade(true);setTimeout(()=>{const n=(lang+1)%2;
+        titleEl.textContent=texts.title[n];noticeEl.textContent=texts.notice[n];
+        suggWrap.querySelectorAll(".suggestion-btn").forEach((b,i)=>{b.textContent=texts.sugg[n][i];b.dataset.suggestion=texts.sugg[n][i];});
+        userInput.placeholder=texts.ph[n];sendBtn.textContent=texts.send[n];lang=n;fade(false);},500);
+    }
 
-  /* ---------- LANG ROTATION ---------- */
-  const texts={
-    title:["Genki Mart Shopping Assistant","Genki Mart ショッピングアシスタント"],
-    notice:[
-      "Feel free to change the language option between English and Japanese on your keyboard, we will reply to you in whatever language you address us in!",
-      "英語と日本語のキーボード設定を自由に切り替えてください。どの言語で話しかけていただいても、その言語でお返事します！"
-    ],
-    sugg:[
-      ["Send me a recipe for Ramen Noodles","What dessert options do you have?"],
-      ["ラーメンのレシピを教えてください","デザートのオプションは何がありますか？"]
-    ],
-    ph:["Type your message...","メッセージを入力してください..."],
-    send:["Send","送信"]
-  };
-  let lang=0;
-  function fadeOut(){[titleEl,noticeEl,suggWrap,sendBtn,userInput].forEach(e=>e.style.opacity=0);}
-  function fadeIn(){[titleEl,noticeEl,suggWrap,sendBtn,userInput].forEach(e=>e.style.opacity=1);}
-  function rotateLang(){
-    fadeOut();setTimeout(()=>{
-      const n=(lang+1)%2;
-      titleEl.textContent=texts.title[n];noticeEl.textContent=texts.notice[n];
-      suggWrap.querySelectorAll(".suggestion-btn").forEach((b,i)=>{b.textContent=texts.sugg[n][i];b.dataset.suggestion=texts.sugg[n][i];});
-      userInput.placeholder=texts.ph[n];sendBtn.textContent=texts.send[n];lang=n;fadeIn();
-    },500);
-  }
-
-  /* ---------- INIT ---------- */
-  window.addEventListener("DOMContentLoaded",()=>{
-    addEvents();getChatId();userInput.focus();
-    setTimeout(()=>{rotateLang();setInterval(rotateLang,7000);},6000);
-  });
+    window.addEventListener("DOMContentLoaded",()=>{
+      addEvents();getChatId();userInput.focus();
+      setTimeout(()=>{rotateLang();setInterval(rotateLang,7000);},6000);
+    });
   </script>
 </body>
 </html>

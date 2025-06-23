@@ -16,7 +16,13 @@
     header { flex: 0 0 140px; background-color: #FFF8E1; border-bottom: 3px solid #D32F2F; display: flex; align-items: center; padding: 0 32px; }
     #logo-container { flex: 0 0 auto; }
     #logo-container img { height: 100px; width: auto; object-fit: contain; }
-    #title { flex: 1 1 auto; font-size: 48px; color: #D32F2F; text-align: center; }
+    #title {
+      flex: 1 1 auto;
+      font-size: 48px;
+      color: #D32F2F;
+      text-align: center;
+      transition: opacity 0.5s ease-in-out;
+    }
     #newChatBtn { flex: 0 0 auto; width: 60px; height: 60px; border: none; border-radius: 50%; background-color: #D32F2F; color: #FFF; font-size: 24px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
     #newChatBtn:hover { background-color: #B71C1C; }
 
@@ -44,6 +50,13 @@
 
     /* INPUT CONTAINER */
     #inputContainer { flex: 0 0 auto; background-color: #FFF8E1; border-top: 3px solid #D32F2F; display: flex; align-items: center; padding: 12px 16px; position: sticky; bottom: 0; z-index: 10; }
+    #langNotice {
+      font-size: 14px;
+      color: #333;
+      margin-right: 8px;
+      opacity: 1;
+      transition: opacity 0.5s ease-in-out;
+    }
     #userInput { flex: 1 1 auto; padding: 12px 16px; font-size: 18px; border: 1px solid #D32F2F; border-radius: 24px; margin-right: 8px; }
     #sendBtn { flex: 0 0 auto; padding: 10px 20px; background-color: #D32F2F; color: #FFF; border: none; border-radius: 24px; cursor: pointer; font-size: 18px; transition: background-color 0.2s ease; }
     #sendBtn:hover { background-color: #B71C1C; }
@@ -64,19 +77,34 @@
 <body>
   <div id="app">
     <header>
-      <div id="logo-container"><img id="logo" src="https://genkimart.com.au/wp-content/uploads/2021/11/Logo-Genki-Mart-e1670940660411.png" alt="Genki Mart Logo" /></div>
+      <div id="logo-container">
+        <img id="logo" src="https://genkimart.com.au/wp-content/uploads/2021/11/Logo-Genki-Mart-e1670940660411.png" alt="Genki Mart Logo" />
+      </div>
       <h1 id="title">Genki Mart Shopping Assistant</h1>
       <button id="newChatBtn" title="New Chat">⟲</button>
     </header>
     <main>
       <div id="chatBox">
-        <div id="chatContainerWrapper"><div id="chatContainer"></div></div>
+        <div id="chatContainerWrapper">
+          <div id="chatContainer"></div>
+        </div>
         <!-- Suggested conversation starters -->
         <div id="suggestions">
-          <button class="suggestion-btn" data-suggestion="Send me a recipe for Ramen Noodles">Send me a recipe for Ramen Noodles</button>
-          <button class="suggestion-btn" data-suggestion="What dessert options do you have?">What dessert options do you have?</button>
+          <button class="suggestion-btn" data-suggestion="Send me a recipe for Ramen Noodles">
+            Send me a recipe for Ramen Noodles
+          </button>
+          <button class="suggestion-btn" data-suggestion="What dessert options do you have?">
+            What dessert options do you have?
+          </button>
         </div>
-        <div id="inputContainer"><input id="userInput" type="text" placeholder="Type your message..." autocomplete="off" /><button id="sendBtn">Send</button></div>
+        <div id="inputContainer">
+          <!-- Language notice -->
+          <span id="langNotice">
+            Feel free to change the language option between English and Japanese on your keyboard, we will reply to you in whatever language you address us in!
+          </span>
+          <input id="userInput" type="text" placeholder="Type your message..." autocomplete="off" />
+          <button id="sendBtn">Send</button>
+        </div>
       </div>
     </main>
   </div>
@@ -168,7 +196,6 @@
       });
       newChatBtn.addEventListener("click", resetChat);
 
-      // suggestion buttons
       suggestionsBar.querySelectorAll(".suggestion-btn").forEach(btn => {
         btn.addEventListener("click", () => sendMessage(btn.dataset.suggestion));
       });
@@ -179,6 +206,38 @@
       initEvents();
       getChatId();
       userInput.focus();
+
+      // ——— LANGUAGE TOGGLE SETUP ———
+      const titleEl  = document.getElementById("title");
+      const noticeEl = document.getElementById("langNotice");
+
+      const titles  = [
+        "Genki Mart Shopping Assistant",
+        "ゲンキマートショッピングアシスタント"
+      ];
+      const notices = [
+        "Feel free to change the language option between English and Japanese on your keyboard, we will reply to you in whatever language you address us!",
+        "英語と日本語のキーボード設定を自由に切り替えてください。どの言語で話しかけていただいても、その言語でお返事します！"
+      ];
+
+      let langIdx = 0;
+      function cycleLanguage() {
+        const next = (langIdx + 1) % titles.length;
+        titleEl.style.opacity  = 0;
+        noticeEl.style.opacity = 0;
+        setTimeout(() => {
+          titleEl.textContent  = titles[next];
+          noticeEl.textContent = notices[next];
+          langIdx = next;
+          titleEl.style.opacity  = 1;
+          noticeEl.style.opacity = 1;
+        }, 500);
+      }
+
+      setTimeout(() => {
+        cycleLanguage();
+        setInterval(cycleLanguage, 7000);
+      }, 6000);
     });
   </script>
 </body>

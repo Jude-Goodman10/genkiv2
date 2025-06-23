@@ -7,68 +7,200 @@
   <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.3/dist/purify.min.js"></script>
   <style>
     /* ---------- RESET & BASE ---------- */
-    *{box-sizing:border-box;margin:0;padding:0}
-    html,body{height:100%;font-family:Arial,Helvetica,sans-serif;background:#FFF8E1;overflow:hidden}
-    #app{display:flex;flex-direction:column;height:100vh;color:#333}
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; font-family: Arial, Helvetica, sans-serif; background: #FFF8E1; }
+    #app { display: flex; flex-direction: column; height: 100vh; color: #333; }
 
     /* ---------- HEADER ---------- */
-    header{flex:0 0 140px;display:flex;align-items:center;padding:0 32px;border-bottom:3px solid #D32F2F;background:#FFF8E1}
-    #logo-container img{height:100px;object-fit:contain}
-    #title{flex:1;font-size:48px;color:#D32F2F;text-align:center;transition:opacity .5s ease-in-out}
-    #newChatBtn{width:60px;height:60px;border:none;border-radius:50%;background:#D32F2F;color:#fff;font-size:24px;display:flex;align-items:center;justify-content:center;cursor:pointer}
-    #newChatBtn:hover{background:#B71C1C}
+    header {
+      flex: 0 0 140px;
+      display: flex;
+      align-items: center;
+      padding: 0 32px;
+      border-bottom: 3px solid #D32F2F;
+      background: #FFF8E1;
+    }
+    #logo-container img { height: 100px; object-fit: contain; }
+    #title {
+      flex: 1;
+      font-size: 48px;
+      color: #D32F2F;
+      text-align: center;
+      transition: opacity .5s ease-in-out;
+    }
+    #newChatBtn {
+      width: 60px;
+      height: 60px;
+      border: none;
+      border-radius: 50%;
+      background: #D32F2F;
+      color: #fff;
+      font-size: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+    #newChatBtn:hover { background: #B71C1C; }
 
     /* ---------- MAIN LAYOUT ---------- */
-    main{flex:1;display:flex;justify-content:center;align-items:flex-start;padding:16px}
+    main {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 16px;
+    }
 
-    /* CHAT BOX */
-    #chatBox{position:relative;display:flex;flex-direction:column;width:100%;max-width:800px;height:100%;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,.1);border-radius:8px;overflow:hidden}
-    #chatContainer{flex:1;overflow-y:auto;display:flex;flex-direction:column;padding:16px}
+    /* ---------- CHAT BOX ---------- */
+    #chatBox {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      max-width: 800px;
+      height: 100%;
+      background: #fff;
+      box-shadow: 0 2px 8px rgba(0,0,0,.1);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    #chatContainer {
+      flex: 1;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      padding: 16px;
+      /* make room for the fixed input bar */
+      padding-bottom: 100px;
+    }
 
-    /* LANGUAGE NOTICE – now ~15 vh down (~75 % toward the top) */
-    #langNotice{
-      margin-top:15vh;                       /* ← updated */
-      text-align:center;font-size:28px;line-height:1.3;
-      transition:opacity .5s ease-in-out;width:80%;align-self:center
+    /* LANGUAGE NOTICE */
+    #langNotice {
+      margin-top: 15vh;
+      text-align: center;
+      font-size: 28px;
+      line-height: 1.3;
+      transition: opacity .5s ease-in-out;
+      width: 80%;
+      align-self: center;
     }
 
     /* MESSAGE BUBBLES */
-    .message{max-width:80%;margin-bottom:12px;padding:10px 14px;border-radius:12px;white-space:pre-wrap;word-wrap:break-word;line-height:1.4}
-    .user  {align-self:flex-end;background:#FFCDD2;border-bottom-right-radius:0}
-    .bot   {align-self:flex-start;background:#fff;border:2px solid #D32F2F;border-bottom-left-radius:0}
-    .typing{align-self:flex-start;background:#fff;border:2px solid #D32F2F;border-bottom-left-radius:0;color:transparent}
-    .typing .dot{width:8px;height:8px;background:#D32F2F;border-radius:50%;display:inline-block;margin:0 2px;opacity:0;animation:blink 1.4s infinite}
-    .typing .dot:nth-child(2){animation-delay:.2s}.typing .dot:nth-child(3){animation-delay:.4s}
-    @keyframes blink{0%,40%,100%{opacity:0}20%{opacity:1}}
+    .message {
+      max-width: 80%;
+      margin-bottom: 12px;
+      padding: 10px 14px;
+      border-radius: 12px;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      line-height: 1.4;
+    }
+    .user  { align-self: flex-end; background: #FFCDD2; border-bottom-right-radius: 0; }
+    .bot   { align-self: flex-start; background: #fff; border: 2px solid #D32F2F; border-bottom-left-radius: 0; }
+    .typing {
+      align-self: flex-start;
+      background: #fff;
+      border: 2px solid #D32F2F;
+      border-bottom-left-radius: 0;
+      color: transparent;
+    }
+    .typing .dot {
+      width: 8px;
+      height: 8px;
+      background: #D32F2F;
+      border-radius: 50%;
+      display: inline-block;
+      margin: 0 2px;
+      opacity: 0;
+      animation: blink 1.4s infinite;
+    }
+    .typing .dot:nth-child(2) { animation-delay: .2s; }
+    .typing .dot:nth-child(3) { animation-delay: .4s; }
+    @keyframes blink {
+      0%,40%,100% { opacity: 0; }
+      20% { opacity: 1; }
+    }
 
     /* SUGGESTED STARTERS */
-    #suggestions{position:absolute;bottom:96px;right:16px;display:flex;flex-direction:column;gap:8px;align-items:flex-end;z-index:5;transition:opacity .5s ease-in-out}
-    .suggestion-btn{background:#FFE5E5;color:#B71C1C;border:1px solid #FFCDD2;padding:8px 12px;border-radius:24px;cursor:pointer;font-size:14px;white-space:nowrap;transition:background .2s}
-    .suggestion-btn:hover{background:#FFCCCC}
+    #suggestions {
+      position: absolute;
+      bottom: 96px; /* above the input bar */
+      right: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      align-items: flex-end;
+      z-index: 5;
+      transition: opacity .5s ease-in-out;
+    }
+    .suggestion-btn {
+      background: #FFE5E5;
+      color: #B71C1C;
+      border: 1px solid #FFCDD2;
+      padding: 8px 12px;
+      border-radius: 24px;
+      cursor: pointer;
+      font-size: 14px;
+      white-space: nowrap;
+      transition: background .2s;
+    }
+    .suggestion-btn:hover { background: #FFCCCC; }
 
-    /* INPUT SECTION */
-    #inputContainer{flex:0 0 auto;background:#FFF8E1;border-top:3px solid #D32F2F;display:flex;align-items:center;padding:12px 16px;position:sticky;bottom:0;z-index:10}
-    #userInput{flex:1;padding:12px 16px;font-size:18px;border:1px solid #D32F2F;border-radius:24px;margin-right:8px;transition:opacity .5s ease-in-out}
-    #sendBtn{padding:10px 20px;background:#D32F2F;color:#fff;border:none;border-radius:24px;font-size:18px;cursor:pointer;transition:background .2s,opacity .5s ease-in-out}
-    #sendBtn:hover{background:#B71C1C}
+    /* INPUT SECTION – fixed at the bottom */
+    #inputContainer {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      flex: 0 0 auto;
+      background: #FFF8E1;
+      border-top: 3px solid #D32F2F;
+      display: flex;
+      align-items: center;
+      padding: 12px 16px;
+      z-index: 10;
+    }
+    #userInput {
+      flex: 1;
+      padding: 12px 16px;
+      font-size: 18px;
+      border: 1px solid #D32F2F;
+      border-radius: 24px;
+      margin-right: 8px;
+      transition: opacity .5s ease-in-out;
+    }
+    #sendBtn {
+      padding: 10px 20px;
+      background: #D32F2F;
+      color: #fff;
+      border: none;
+      border-radius: 24px;
+      font-size: 18px;
+      cursor: pointer;
+      transition: background .2s, opacity .5s ease-in-out;
+    }
+    #sendBtn:hover { background: #B71C1C; }
 
     /* ---------- RESPONSIVE ---------- */
     @media(max-width:600px){
-      header{flex:0 0 100px;padding:0 16px}
-      #logo-container img{height:80px}
-      #title{font-size:32px}
-      #newChatBtn{width:50px;height:50px;font-size:20px}
-      #langNotice{font-size:22px;width:90%}
-      .suggestion-btn{font-size:12px}
-      #userInput{font-size:16px}
-      #sendBtn{font-size:16px;padding:8px 16px}
+      header { flex:0 0 100px; padding:0 16px; }
+      #logo-container img { height:80px; }
+      #title { font-size:32px; }
+      #newChatBtn { width:50px; height:50px; font-size:20px; }
+      #langNotice { font-size:22px; width:90%; }
+      .suggestion-btn { font-size:12px; }
+      #userInput { font-size:16px; }
+      #sendBtn { font-size:16px; padding:8px 16px; }
     }
   </style>
 </head>
 <body>
   <div id="app">
     <header>
-      <div id="logo-container"><img src="https://genkimart.com.au/wp-content/uploads/2021/11/Logo-Genki-Mart-e1670940660411.png" alt="Genki Mart Logo"></div>
+      <div id="logo-container">
+        <img src="https://genkimart.com.au/wp-content/uploads/2021/11/Logo-Genki-Mart-e1670940660411.png" alt="Genki Mart Logo">
+      </div>
       <h1 id="title">Genki Mart Shopping Assistant</h1>
       <button id="newChatBtn" title="New Chat">⟲</button>
     </header>
@@ -94,65 +226,142 @@
     </main>
   </div>
 
-  <!-- ---------- JS (unchanged from your last version) ---------- -->
   <script>
-    const WEBHOOK_URL="https://n8n.emergeai.com.au/webhook/ecb4d22e-23fc-4679-83aa-507ad8ab1483";
-    const chatC=document.getElementById("chatContainer");
-    const userInput=document.getElementById("userInput");
-    const sendBtn=document.getElementById("sendBtn");
-    const newBtn=document.getElementById("newChatBtn");
-    const suggWrap=document.getElementById("suggestions");
-    const titleEl=document.getElementById("title");
-    const noticeEl=document.getElementById("langNotice");
+    const WEBHOOK_URL = "https://n8n.emergeai.com.au/webhook/ecb4d22e-23fc-4679-83aa-507ad8ab1483";
+    const chatC = document.getElementById("chatContainer");
+    const userInput = document.getElementById("userInput");
+    const sendBtn = document.getElementById("sendBtn");
+    const newBtn  = document.getElementById("newChatBtn");
+    const suggWrap = document.getElementById("suggestions");
+    const titleEl  = document.getElementById("title");
+    const noticeEl = document.getElementById("langNotice");
 
-    function getChatId(){let id=localStorage.getItem("chatId");if(!id){id=crypto.randomUUID();localStorage.setItem("chatId",id);}return id;}
-
-    let typing=null;
-    function appendBubble(text,who="bot"){
-      const d=document.createElement("div");
-      d.className=`message ${who}`;
-      if(who==="bot")d.innerHTML=DOMPurify.sanitize(text);
-      else if(who==="typing")d.innerHTML="<span class='dot'></span><span class='dot'></span><span class='dot'></span>";
-      else d.textContent=text;
-      chatC.appendChild(d);chatC.scrollTop=chatC.scrollHeight;return d;
-    }
-    function showTyping(){if(!typing)typing=appendBubble("","typing");}
-    function hideTyping(){if(typing){typing.remove();typing=null;}}
-
-    function resetChat(){localStorage.removeItem("chatId");chatC.innerHTML="";chatC.appendChild(noticeEl);userInput.value="";suggWrap.style.display="flex";userInput.focus();}
-
-    async function sendMsg(t){
-      if(!t.trim())return;suggWrap.style.display="none";appendBubble(t,"user");showTyping();
-      try{const r=await fetch(WEBHOOK_URL,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({sessionId:getChatId(),message:t})});const j=await r.json();hideTyping();appendBubble(j.reply||"⚠️ Unexpected response","bot");}
-      catch(e){console.error(e);hideTyping();appendBubble("⚠️ Failed to contact server.","bot");}
+    function getChatId() {
+      let id = localStorage.getItem("chatId");
+      if (!id) {
+        id = crypto.randomUUID();
+        localStorage.setItem("chatId", id);
+      }
+      return id;
     }
 
-    function addEvents(){
-      sendBtn.onclick=()=>{const t=userInput.value;userInput.value="";sendMsg(t);}
-      userInput.onkeydown=e=>{if(e.key==="Enter"){e.preventDefault();sendBtn.click();}}
-      newBtn.onclick=resetChat;
-      suggWrap.querySelectorAll(".suggestion-btn").forEach(b=>b.onclick=()=>sendMsg(b.dataset.suggestion));
+    let typing = null;
+    function appendBubble(text, who = "bot") {
+      const d = document.createElement("div");
+      d.className = `message ${who}`;
+      if (who === "bot")      d.innerHTML = DOMPurify.sanitize(text);
+      else if (who === "typing") d.innerHTML = "<span class='dot'></span><span class='dot'></span><span class='dot'></span>";
+      else                    d.textContent = text;
+      chatC.appendChild(d);
+      chatC.scrollTop = chatC.scrollHeight;
+      return d;
+    }
+    function showTyping() { if (!typing) typing = appendBubble("", "typing"); }
+    function hideTyping() { if (typing) { typing.remove(); typing = null; } }
+
+    function resetChat() {
+      localStorage.removeItem("chatId");
+      chatC.innerHTML = "";
+      chatC.appendChild(noticeEl);
+      userInput.value = "";
+      suggWrap.style.display = "flex";
+      userInput.focus();
     }
 
-    const texts={
-      title:["Genki Mart Shopping Assistant","Genki Mart ショッピングアシスタント"],
-      notice:["Feel free to change the language option between English and Japanese on your keyboard, we will reply to you in whatever language you address us in!","英語と日本語のキーボード設定を自由に切り替えてください。どの言語で話しかけていただいても、その言語でお返事します！"],
-      sugg:[["Send me a recipe for Ramen Noodles","What dessert options do you have?"],["ラーメンのレシピを教えてください","デザートのオプションは何がありますか？"]],
-      ph:["Type your message...","メッセージを入力してください..."],
-      send:["Send","送信"]
+    async function sendMsg(t) {
+      if (!t.trim()) return;
+      suggWrap.style.display = "none";
+      appendBubble(t, "user");
+      showTyping();
+      try {
+        const headers = {
+          "Content-Type": "application/json",
+          "Accept-Language": lang === 1 ? "ja-JP" : "en-US"
+        };
+        const payload = {
+          sessionId: getChatId(),
+          message: t,
+          language: lang === 1 ? "ja" : "en"
+        };
+        const r = await fetch(WEBHOOK_URL, {
+          method: "POST",
+          headers,
+          body: JSON.stringify(payload)
+        });
+        const j = await r.json();
+        hideTyping();
+        appendBubble(j.reply || "⚠️ Unexpected response", "bot");
+      } catch (e) {
+        console.error(e);
+        hideTyping();
+        appendBubble("⚠️ Failed to contact server.", "bot");
+      }
+    }
+
+    function addEvents() {
+      sendBtn.onclick = () => {
+        const t = userInput.value;
+        userInput.value = "";
+        sendMsg(t);
+      };
+      userInput.onkeydown = e => {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          sendBtn.click();
+        }
+      };
+      newBtn.onclick = resetChat;
+      suggWrap.querySelectorAll(".suggestion-btn").forEach(b =>
+        b.onclick = () => sendMsg(b.dataset.suggestion)
+      );
+    }
+
+    const texts = {
+      title: ["Genki Mart Shopping Assistant", "Genki Mart ショッピングアシスタント"],
+      notice: [
+        "Feel free to change the language option between English and Japanese on your keyboard, we will reply to you in whatever language you address us in!",
+        "英語と日本語のキーボード設定を自由に切り替えてください。どの言語で話しかけていただいても、その言語でお返事します！"
+      ],
+      sugg: [
+        ["Send me a recipe for Ramen Noodles", "What dessert options do you have?"],
+        ["ラーメンのレシピを教えてください", "デザートのオプションは何がありますか？"]
+      ],
+      ph: ["Type your message...", "メッセージを入力してください..."],
+      send: ["Send", "送信"]
     };
-    let lang=0;
-    function fade(out){[titleEl,noticeEl,suggWrap,sendBtn,userInput].forEach(e=>e.style.opacity=out?0:1);}
-    function rotateLang(){
-      fade(true);setTimeout(()=>{const n=(lang+1)%2;
-        titleEl.textContent=texts.title[n];noticeEl.textContent=texts.notice[n];
-        suggWrap.querySelectorAll(".suggestion-btn").forEach((b,i)=>{b.textContent=texts.sugg[n][i];b.dataset.suggestion=texts.sugg[n][i];});
-        userInput.placeholder=texts.ph[n];sendBtn.textContent=texts.send[n];lang=n;fade(false);},500);
+    let lang = 0;
+
+    function fade(out) {
+      [titleEl, noticeEl, suggWrap, sendBtn, userInput].forEach(e =>
+        e.style.opacity = out ? 0 : 1
+      );
     }
 
-    window.addEventListener("DOMContentLoaded",()=>{
-      addEvents();getChatId();userInput.focus();
-      setTimeout(()=>{rotateLang();setInterval(rotateLang,7000);},6000);
+    function rotateLang() {
+      fade(true);
+      setTimeout(() => {
+        const n = (lang + 1) % 2;
+        titleEl.textContent = texts.title[n];
+        noticeEl.textContent = texts.notice[n];
+        suggWrap.querySelectorAll(".suggestion-btn").forEach((b, i) => {
+          b.textContent = texts.sugg[n][i];
+          b.dataset.suggestion = texts.sugg[n][i];
+        });
+        userInput.placeholder = texts.ph[n];
+        sendBtn.textContent = texts.send[n];
+        lang = n;
+        fade(false);
+      }, 500);
+    }
+
+    window.addEventListener("DOMContentLoaded", () => {
+      addEvents();
+      getChatId();
+      userInput.focus();
+      setTimeout(() => {
+        rotateLang();
+        setInterval(rotateLang, 7000);
+      }, 6000);
     });
   </script>
 </body>

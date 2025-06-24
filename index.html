@@ -71,7 +71,7 @@
       overflow-y: auto;
       display: flex;
       flex-direction: column-reverse; /* Reverse order to push old messages up */
-      padding: 120px 16px 180px; /* Increased top padding to ~20% of chatBox height */
+      padding: 120px 16px 180px; /* Increased top padding to position #langNotice ~20% down */
     }
 
     /* LANGUAGE NOTICE */
@@ -87,8 +87,6 @@
       width: 80%;
       align-self: center;
       margin-bottom: 12px;
-      position: absolute; /* Position absolutely to control height */
-      top: 120px; /* Approximately 20% of 600px (header + chatBox height) */
     }
 
     /* MESSAGE BUBBLES */
@@ -193,7 +191,7 @@
       #logo-container img { height:80px; }
       #title { font-size:32px; }
       #newChatBtn { width:50px; height:50px; font-size:20px; }
-      #langNotice { font-size:22px; width:90%; top: 100px; } /* Adjusted for smaller screens */
+      #langNotice { font-size:22px; width:90%; }
       .suggestion-btn { font-size:12px; }
       #userInput { font-size:16px; }
       #sendBtn { font-size:16px; padding:8px 16px; }

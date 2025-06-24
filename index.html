@@ -70,9 +70,9 @@
       flex: 1;
       overflow-y: auto;
       display: flex;
-      flex-direction: column-reverse; /* Reverse order to push old messages up */
+      flex-direction: column;
       padding: 16px;
-      padding-bottom: 120px; /* Space for input container */
+      padding-bottom: 120px; /* Adjusted to ensure space for input container */
     }
 
     /* LANGUAGE NOTICE */
@@ -157,7 +157,7 @@
       bottom: 0;
       left: 0;
       width: 100%;
-      min-height: 80px; /* Fixed minimum height to prevent downward shift */
+      flex: 0 0 auto;
       background: #FFF8E1;
       border-top: 3px solid #D32F2F;
       display: flex;
@@ -260,12 +260,12 @@
       else if (who === "typing") d.innerHTML = "<span class='dot'></span><span class='dot'></span><span class='dot'></span>";
       else                    d.textContent = text;
 
-      // Prepend to maintain bottom-up order with column-reverse
-      chatC.prepend(d);
+      chatC.appendChild(d);
 
-      /* NEW AUTO-SCROLL — keeps latest bubble at bottom */
+      /* NEW AUTO-SCROLL — ensures latest bubble is just above input container */
       requestAnimationFrame(() => {
-        chatC.scrollTop = 0; // Scroll to top to keep latest message at bottom
+        const inputHeight = inputContainer.offsetHeight;
+        chatC.scrollTop = chatC.scrollHeight - chatC.clientHeight + inputHeight;
       });
 
       return d;

@@ -260,7 +260,7 @@
 
       /* NEW AUTO-SCROLL — ensures latest bubble is in view */
       requestAnimationFrame(() => {
-        d.scrollIntoView({ behavior: "smooth", block: "end" });
+        chatC.scrollTop = chatC.scrollHeight; // Scroll to the bottom of the container
       });
 
       return d;

@@ -72,7 +72,6 @@
       display: flex;
       flex-direction: column;
       padding: 16px;
-      /* Adjusted padding to match input container height dynamically */
       padding-bottom: 100px; /* Matches #inputContainer's approximate height */
     }
 
@@ -85,6 +84,14 @@
       transition: opacity .5s ease-in-out;
       width: 80%;
       align-self: center;
+      position: absolute; /* Position it absolutely to avoid affecting scroll */
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 1;
+    }
+    .chat-active #langNotice { /* Hide when chat starts */
+      display: none;
     }
 
     /* MESSAGE BUBBLES */
@@ -207,11 +214,9 @@
     </header>
 
     <main>
-      <div id="chatBox">
+      <div id="chatBox" class="chat-active"> <!-- Added chat-active class to hide #langNotice initially -->
         <div id="chatContainer">
-          <div id="langNotice">
-            Feel free to change the language option between English and Japanese on your keyboard, we will reply to you in whatever language you address us in!
-          </div>
+          <!-- #langNotice will be managed separately -->
         </div>
 
         <div id="suggestions">
@@ -225,6 +230,9 @@
         </div>
       </div>
     </main>
+    <div id="langNotice"> <!-- Moved outside #chatContainer -->
+      Feel free to change the language option between English and Japanese on your keyboard, we will reply to you in whatever language you address us in!
+    </div>
   </div>
 
   <script>
@@ -237,6 +245,7 @@
     const titleEl   = document.getElementById("title");
     const noticeEl  = document.getElementById("langNotice");
     const inputContainer = document.getElementById("inputContainer");
+    const chatBox = document.getElementById("chatBox");
 
     function getChatId() {
       let id = localStorage.getItem("chatId");
@@ -261,8 +270,8 @@
 
       /* NEW AUTO-SCROLL — ensures latest bubble is just above input container */
       requestAnimationFrame(() => {
-        const inputHeight = inputContainer.offsetHeight; // Get the height of the input container
-        chatC.scrollTop = chatC.scrollHeight - chatC.clientHeight + inputHeight; // Adjust scroll to keep latest message visible
+        const inputHeight = inputContainer.offsetHeight;
+        chatC.scrollTop = chatC.scrollHeight - chatC.clientHeight + inputHeight;
       });
 
       return d;
@@ -273,7 +282,8 @@
     function resetChat() {
       localStorage.removeItem("chatId");
       chatC.innerHTML = "";
-      chatC.appendChild(noticeEl);
+      chatBox.classList.remove("chat-active"); // Show #langNotice again
+      noticeEl.style.display = "block"; // Ensure notice is visible
       userInput.value = "";
       suggWrap.style.display = "flex";
       userInput.focus();
@@ -282,6 +292,10 @@
     async function sendMsg(t) {
       if (!t.trim()) return;
       suggWrap.style.display = "none";
+      if (!chatBox.classList.contains("chat-active")) {
+        chatBox.classList.add("chat-active"); // Hide #langNotice when chat starts
+        noticeEl.style.display = "none"; // Hide the notice element
+      }
       appendBubble(t, "user");
       showTyping();
       try {

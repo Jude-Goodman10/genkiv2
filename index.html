@@ -72,26 +72,22 @@
       display: flex;
       flex-direction: column;
       padding: 16px;
-      padding-bottom: 100px; /* Matches #inputContainer's approximate height */
+      padding-bottom: 120px; /* Adjusted to ensure space for input container */
     }
 
     /* LANGUAGE NOTICE */
     #langNotice {
-      margin-top: 15vh;
+      margin-top: 0;
       text-align: center;
       font-size: 28px;
       line-height: 1.3;
-      transition: opacity .5s ease-in-out;
+      padding: 10px;
+      background: #fff;
+      border: 2px solid #D32F2F;
+      border-radius: 12px;
       width: 80%;
       align-self: center;
-      position: absolute; /* Position it absolutely to avoid affecting scroll */
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      z-index: 1;
-    }
-    .chat-active #langNotice { /* Hide when chat starts */
-      display: none;
+      margin-bottom: 12px;
     }
 
     /* MESSAGE BUBBLES */
@@ -214,9 +210,11 @@
     </header>
 
     <main>
-      <div id="chatBox" class="chat-active"> <!-- Added chat-active class to hide #langNotice initially -->
+      <div id="chatBox">
         <div id="chatContainer">
-          <!-- #langNotice will be managed separately -->
+          <div id="langNotice">
+            Feel free to change the language option between English and Japanese on your keyboard, we will reply to you in whatever language you address us in!
+          </div>
         </div>
 
         <div id="suggestions">
@@ -230,9 +228,6 @@
         </div>
       </div>
     </main>
-    <div id="langNotice"> <!-- Moved outside #chatContainer -->
-      Feel free to change the language option between English and Japanese on your keyboard, we will reply to you in whatever language you address us in!
-    </div>
   </div>
 
   <script>
@@ -245,7 +240,6 @@
     const titleEl   = document.getElementById("title");
     const noticeEl  = document.getElementById("langNotice");
     const inputContainer = document.getElementById("inputContainer");
-    const chatBox = document.getElementById("chatBox");
 
     function getChatId() {
       let id = localStorage.getItem("chatId");
@@ -281,9 +275,7 @@
 
     function resetChat() {
       localStorage.removeItem("chatId");
-      chatC.innerHTML = "";
-      chatBox.classList.remove("chat-active"); // Show #langNotice again
-      noticeEl.style.display = "block"; // Ensure notice is visible
+      chatC.innerHTML = `<div id="langNotice">Feel free to change the language option between English and Japanese on your keyboard, we will reply to you in whatever language you address us in!</div>`;
       userInput.value = "";
       suggWrap.style.display = "flex";
       userInput.focus();
@@ -292,11 +284,11 @@
     async function sendMsg(t) {
       if (!t.trim()) return;
       suggWrap.style.display = "none";
-      if (!chatBox.classList.contains("chat-active")) {
-        chatBox.classList.add("chat-active"); // Hide #langNotice when chat starts
-        noticeEl.style.display = "none"; // Hide the notice element
+      if (chatC.children.length === 1) { // If only #langNotice exists, add first user message
+        appendBubble(t, "user");
+      } else {
+        appendBubble(t, "user");
       }
-      appendBubble(t, "user");
       showTyping();
       try {
         const headers = {

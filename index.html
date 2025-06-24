@@ -72,8 +72,8 @@
       display: flex;
       flex-direction: column;
       padding: 16px;
-      /* make room for the fixed input bar */
-      padding-bottom: 100px;
+      /* Adjusted padding to match input container height dynamically */
+      padding-bottom: 100px; /* Matches #inputContainer's approximate height */
     }
 
     /* LANGUAGE NOTICE */
@@ -236,6 +236,7 @@
     const suggWrap  = document.getElementById("suggestions");
     const titleEl   = document.getElementById("title");
     const noticeEl  = document.getElementById("langNotice");
+    const inputContainer = document.getElementById("inputContainer");
 
     function getChatId() {
       let id = localStorage.getItem("chatId");
@@ -258,9 +259,10 @@
 
       chatC.appendChild(d);
 
-      /* NEW AUTO-SCROLL — ensures latest bubble is in view */
+      /* NEW AUTO-SCROLL — ensures latest bubble is just above input container */
       requestAnimationFrame(() => {
-        chatC.scrollTop = chatC.scrollHeight; // Scroll to the bottom of the container
+        const inputHeight = inputContainer.offsetHeight; // Get the height of the input container
+        chatC.scrollTop = chatC.scrollHeight - chatC.clientHeight + inputHeight; // Adjust scroll to keep latest message visible
       });
 
       return d;

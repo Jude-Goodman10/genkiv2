@@ -179,6 +179,8 @@
       border: 1px solid #D32F2F;
       border-radius: 24px;
       margin-right: 8px;
+    }
+    #userInput::placeholder {
       transition: opacity .5s ease-in-out;
     }
     #sendBtn {
@@ -187,9 +189,10 @@
       color: #fff;
       border: none;
       border-radius: 24px;
-      font-size: 18px;
+      font-size: 24px;
+      font-weight: bold;
       cursor: pointer;
-      transition: background .2s, opacity .5s ease-in-out;
+      transition: background .2s;
     }
     #sendBtn:hover { background: #B71C1C; }
 
@@ -209,7 +212,7 @@
       #langNotice { font-size:22px; width:90%; }
       .suggestion-btn { font-size:12px; }
       #userInput { font-size:16px; }
-      #sendBtn { font-size:16px; padding:8px 16px; }
+      #sendBtn { font-size:20px; padding:8px 16px; }
       #chatContainer::after { height: 70px; }
     }
   </style>
@@ -239,7 +242,7 @@
 
         <div id="inputContainer">
           <input id="userInput" type="text" placeholder="Type your message..." autocomplete="off">
-          <button id="sendBtn">Send</button>
+          <button id="sendBtn">↑</button>
         </div>
       </div>
     </main>
@@ -357,15 +360,19 @@
         ["Send me a recipe for Ramen Noodles", "What dessert options do you have?"],
         ["ラーメンのレシピを教えてください", "デザートのオプションは何がありますか？"]
       ],
-      ph: ["Type your message...", "メッセージを入力してください..."],
-      send: ["Send", "送信"]
+      ph: ["Type your message...", "メッセージを入力してください..."]
     };
     let lang = 0;
 
     function fade(out) {
-      [titleEl, noticeEl, suggWrap, sendBtn, userInput].forEach(e =>
+      [titleEl, noticeEl, suggWrap].forEach(e =>
         e.style.opacity = out ? 0 : 1
       );
+      // Fade only the placeholder text
+      const placeholderStyle = document.createElement('style');
+      placeholderStyle.innerHTML = `#userInput::placeholder { opacity: ${out ? 0 : 1}; }`;
+      document.head.appendChild(placeholderStyle);
+      setTimeout(() => placeholderStyle.remove(), 1000);
     }
 
     function rotateLang() {
@@ -379,7 +386,6 @@
           b.dataset.suggestion = texts.sugg[n][i];
         });
         userInput.placeholder = texts.ph[n];
-        sendBtn.textContent = texts.send[n];
         lang = n;
         fade(false);
       }, 500);

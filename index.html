@@ -71,8 +71,7 @@
       overflow-y: auto;
       display: flex;
       flex-direction: column-reverse; /* Reverse order to push old messages up */
-      padding: 16px;
-      padding-bottom: 120px; /* Space for input container */
+      padding: 40px 16px 120px; /* Increased top padding to push #langNotice up */
     }
 
     /* LANGUAGE NOTICE */
@@ -355,7 +354,7 @@
     }
 
     function rotateLang() {
-      fade(true);
+      fade(true); // Start fade out (0.5s duration)
       setTimeout(() => {
         const n = (lang + 1) % 2;
         titleEl.textContent = texts.title[n];
@@ -367,8 +366,9 @@
         userInput.placeholder = texts.ph[n];
         sendBtn.textContent = texts.send[n];
         lang = n;
-        fade(false);
-      }, 500);
+        fade(false); // Start fade in (0.5s duration)
+      }, 500); // 0.5s fade out
+      setTimeout(rotateLang, 6500); // 0.5s fade out + 6s display + 0.5s fade in = 7s total cycle
     }
 
     window.addEventListener("DOMContentLoaded", () => {
@@ -376,9 +376,8 @@
       getChatId();
       userInput.focus();
       setTimeout(() => {
-        rotateLang();
-        setInterval(rotateLang, 7000);
-      }, 6000);
+        rotateLang(); // Start the rotation
+      }, 6000); // Initial delay of 6s before starting
     });
   </script>
 </body>

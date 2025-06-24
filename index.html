@@ -71,7 +71,7 @@
       overflow-y: auto;
       display: flex;
       flex-direction: column-reverse; /* Reverse order to push old messages up */
-      padding: 120px 16px 180px; /* Increased top padding to position #langNotice ~20% down */
+      padding: 120px 16px 200px; /* Increased top padding for initial #langNotice position, bottom for input gap */
     }
 
     /* LANGUAGE NOTICE */
@@ -128,7 +128,7 @@
     /* SUGGESTED STARTERS */
     #suggestions {
       position: absolute;
-      bottom: 140px; /* Maintain gap from input bar */
+      bottom: 160px; /* Adjusted to ensure gap from input bar and avoid overlap */
       right: 16px;
       display: flex;
       flex-direction: column;

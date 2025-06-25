@@ -79,22 +79,24 @@
       min-height: 0; /* Important for flex child with overflow */
     }
 
-    /* LANGUAGE NOTICE - now part of the normal flow */
+    /* LANGUAGE NOTICE ------------------------------------------------------ */
     #langNotice {
       text-align: center;
       font-size: 28px;
       line-height: 1.3;
       padding: 10px;
       background: #fff;
-      border: 2px solid #D32F2F;
+      border: 4px solid #D32F2F;        /* thicker & permanent */
       border-radius: 12px;
       width: 80%;
       align-self: center;
       margin-bottom: 20px;
       flex-shrink: 0; /* Prevent shrinking */
     }
+    /* Only the text inside will fade */
+    #noticeText { transition: opacity .5s ease-in-out; }
 
-    /* MESSAGE BUBBLES */
+    /* MESSAGE BUBBLES ------------------------------------------------------ */
     .message {
       max-width: 80%;
       margin-bottom: 12px;
@@ -131,7 +133,7 @@
       20% { opacity: 1; }
     }
 
-    /* SUGGESTED STARTERS - positioned relative to chat container */
+    /* SUGGESTED STARTERS --------------------------------------------------- */
     #suggestions {
       position: absolute;
       bottom: 100px; /* Above the input container */
@@ -158,7 +160,7 @@
     }
     .suggestion-btn:hover { background: #FFCCCC; }
 
-    /* INPUT SECTION – fixed at the bottom with proper spacing */
+    /* INPUT SECTION – fixed at the bottom --------------------------------- */
     #inputContainer {
       position: absolute;
       bottom: 0;
@@ -196,7 +198,7 @@
     }
     #sendBtn:hover { background: #B71C1C; }
 
-    /* Add spacing at bottom of chat container to ensure content doesn't hide behind input */
+    /* Add spacing at bottom of chat container */
     #chatContainer::after {
       content: '';
       height: 80px; /* Height of input container + some padding */
@@ -231,7 +233,9 @@
       <div id="chatBox">
         <div id="chatContainer">
           <div id="langNotice">
-            Feel free to change the language option between English and Japanese on your keyboard, we will reply to you in whatever language you address us in!
+            <span id="noticeText">
+              Feel free to change the language option between English and Japanese on your keyboard, we will reply to you in whatever language you address us in!
+            </span>
           </div>
         </div>
 
@@ -257,6 +261,7 @@
     const suggWrap  = document.getElementById("suggestions");
     const titleEl   = document.getElementById("title");
     const noticeEl  = document.getElementById("langNotice");
+    const noticeText = document.getElementById("noticeText");
     const inputContainer = document.getElementById("inputContainer");
 
     // Use in-memory storage instead of localStorage for this environment
@@ -281,7 +286,7 @@
 
       chatC.appendChild(d);
 
-      // Improved auto-scroll - scroll to bottom naturally
+      // Improved auto-scroll
       requestAnimationFrame(() => {
         chatC.scrollTop = chatC.scrollHeight;
       });
@@ -364,11 +369,12 @@
     };
     let lang = 0;
 
+    /* ---------- FADE HELPERS ---------- */
     function fade(out) {
-      [titleEl, noticeEl, suggWrap].forEach(e =>
+      [titleEl, noticeText, suggWrap].forEach(e =>
         e.style.opacity = out ? 0 : 1
       );
-      // Fade only the placeholder text
+      // Placeholder text fade
       const placeholderStyle = document.createElement('style');
       placeholderStyle.innerHTML = `#userInput::placeholder { opacity: ${out ? 0 : 1}; }`;
       document.head.appendChild(placeholderStyle);
@@ -379,10 +385,10 @@
       fade(true);
       setTimeout(() => {
         const n = (lang + 1) % 2;
-        titleEl.textContent = texts.title[n];
-        noticeEl.textContent = texts.notice[n];
+        titleEl.textContent    = texts.title[n];
+        noticeText.textContent = texts.notice[n];      // only changes inner span
         suggWrap.querySelectorAll(".suggestion-btn").forEach((b, i) => {
-          b.textContent = texts.sugg[n][i];
+          b.textContent       = texts.sugg[n][i];
           b.dataset.suggestion = texts.sugg[n][i];
         });
         userInput.placeholder = texts.ph[n];
@@ -391,6 +397,7 @@
       }, 500);
     }
 
+    /* ---------- INIT ---------- */
     window.addEventListener("DOMContentLoaded", () => {
       addEvents();
       getChatId();

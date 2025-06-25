@@ -367,9 +367,11 @@
     let lang = 0;
 
     function fade(out) {
-      [titleEl, noticeEl, suggWrap, sendBtn, userInput].forEach(e =>
+      [titleEl, suggWrap, sendBtn, userInput].forEach(e =>
         e.style.opacity = out ? 0 : 1
       );
+      // Only fade the text content, not the border
+      noticeEl.style.opacity = out ? 0 : 1;
     }
 
     function rotateLang() {

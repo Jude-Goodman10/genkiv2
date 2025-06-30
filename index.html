@@ -251,6 +251,7 @@
     const suggWrap  = document.getElementById("suggestions");
     const titleEl   = document.getElementById("title");
     const noticeText = document.getElementById("noticeText");
+    const langNotice = document.getElementById("langNotice");
 
     /* Simple per-page session ID */
     let chatId = null;
@@ -273,8 +274,11 @@
 
     function resetChat() {
       chatId = null;
-      chatC.innerHTML = "";
-      chatC.appendChild(document.getElementById("langNotice"));
+      // Remove all messages but keep the language notice
+      const messages = chatC.querySelectorAll('.message');
+      messages.forEach(msg => msg.remove());
+      // Make sure language notice is at the top
+      chatC.insertBefore(langNotice, chatC.firstChild);
       userInput.value = "";
       suggWrap.style.display = "flex";
       userInput.focus();

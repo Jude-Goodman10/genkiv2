@@ -225,7 +225,7 @@
       <div id="chatBox">
         <div id="chatContainer">
           <div id="langNotice"><span id="noticeText">
-            Feel free to change the language option between English and Japanese on your keyboard, we will reply to you in whatever language you address us in!
+            Feel free to use whatever language you are most comfortable with and we will respond to you in the same language you address us!
           </span></div>
         </div>
 
@@ -251,14 +251,33 @@
     const suggWrap  = document.getElementById("suggestions");
     const titleEl   = document.getElementById("title");
     const noticeText = document.getElementById("noticeText");
-    const langNotice = document.getElementById("langNotice");
-
-    /* Simple per-page session ID */
-    let chatId = null;
-    const getChatId = () => chatId ?? (chatId = crypto.randomUUID());
-
-    /* ---------- MESSAGE BUBBLES ---------- */
     let typing = null;
+    let chatId = null;
+    let lang = 0;
+
+    const texts = {
+      title: [
+        "Genki Mart Shopping Assistant",
+        "Genki Mart ショッピングアシスタント",
+        "Genki Mart 购物助手"
+      ],
+      notice: [
+        "Feel free to use whatever language you are most comfortable with and we will respond to you in the same language you address us!",
+        "英語と日本語のキーボード設定を自由に切り替えてください。どの言語で話しかけていただいても、その言語でお返事します！",
+        "请随意使用您最熟悉的任何语言，我们会用同样的语言回复您！"
+      ],
+      sugg: [
+        ["Send me a recipe for Ramen Noodles", "What dessert options do you have?"],
+        ["ラーメンのレシピを教えてください", "デザートのオプションは何がありますか？"],
+        ["给我一份拉面食谱", "有什么甜点可供选择？"]
+      ],
+      ph: [
+        "Type your message...",
+        "メッセージを入力してください...",
+        "请输入您的消息..."
+      ]
+    };
+
     function appendBubble(text, who = "bot") {
       const d = document.createElement("div");
       d.className = `message ${who}`;
@@ -269,20 +288,9 @@
       requestAnimationFrame(() => chatC.scrollTop = chatC.scrollHeight);
       return d;
     }
-    const showTyping = () => { if (!typing) typing = appendBubble("", "typing"); };
-    const hideTyping = () => { if (typing) { typing.remove(); typing = null; } };
-
-    function resetChat() {
-      chatId = null;
-      // Remove all messages but keep the language notice
-      const messages = chatC.querySelectorAll('.message');
-      messages.forEach(msg => msg.remove());
-      // Make sure language notice is at the top
-      chatC.insertBefore(langNotice, chatC.firstChild);
-      userInput.value = "";
-      suggWrap.style.display = "flex";
-      userInput.focus();
-    }
+    function showTyping() { if (!typing) typing = appendBubble("", "typing"); }
+    function hideTyping() { if (typing) { typing.remove(); typing = null; } }
+    const getChatId = () => chatId ?? (chatId = crypto.randomUUID());
 
     async function sendMsg(t) {
       if (!t.trim()) return;
@@ -290,7 +298,7 @@
       appendBubble(t, "user");
       showTyping();
       try {
-        const payload = { sessionId: getChatId(), message: t, language: lang ? "ja" : "en" };
+        const payload = { sessionId: getChatId(), message: t, language: lang === 1 ? "ja" : (lang === 2 ? "zh" : "en") };
         const r = await fetch(WEBHOOK_URL, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -306,30 +314,24 @@
       }
     }
 
+    function resetChat() {
+      chatId = null;
+      chatC.querySelectorAll('.message').forEach(msg => msg.remove());
+      chatC.insertBefore(document.getElementById("langNotice"), chatC.firstChild);
+      userInput.value = "";
+      suggWrap.style.display = "flex";
+      userInput.focus();
+    }
+
     function addEvents() {
       sendBtn.onclick = () => { const t = userInput.value; userInput.value = ""; sendMsg(t); };
       userInput.onkeydown = e => { if (e.key === "Enter") { e.preventDefault(); sendBtn.click(); } };
       newBtn.onclick = resetChat;
-      suggWrap.querySelectorAll(".suggestion-btn").forEach(b =>
+      suggWrap.querySelectorAll(".suggestion-btn").forEach((b, i) =>
         b.onclick = () => sendMsg(b.dataset.suggestion)
       );
     }
 
-    const texts = {
-      title: ["Genki Mart Shopping Assistant", "Genki Mart ショッピングアシスタント"],
-      notice: [
-        "Feel free to change the language option between English and Japanese on your keyboard, we will reply to you in whatever language you address us in!",
-        "英語と日本語のキーボード設定を自由に切り替えてください。どの言語で話しかけていただいても、その言語でお返事します！"
-      ],
-      sugg: [
-        ["Send me a recipe for Ramen Noodles", "What dessert options do you have?"],
-        ["ラーメンのレシピを教えてください", "デザートのオプションは何がありますか？"]
-      ],
-      ph: ["Type your message...", "メッセージを入力してください..."]
-    };
-    let lang = 0;
-
-    /* ---------- FADE ---------- */
     function fade(out) {
       [titleEl, noticeText, suggWrap].forEach(e => e.style.opacity = out ? 0 : 1);
       const phStyle = document.createElement("style");
@@ -341,7 +343,7 @@
     function rotateLang() {
       fade(true);
       setTimeout(() => {
-        lang = (lang + 1) % 2;
+        lang = (lang + 1) % 3;
         titleEl.textContent = texts.title[lang];
         noticeText.textContent = texts.notice[lang];
         suggWrap.querySelectorAll(".suggestion-btn").forEach((b, i) => {
@@ -353,7 +355,6 @@
       }, 500);
     }
 
-    /* ---------- INIT ---------- */
     window.addEventListener("DOMContentLoaded", () => {
       addEvents();
       getChatId();
